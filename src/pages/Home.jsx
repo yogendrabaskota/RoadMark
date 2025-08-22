@@ -3,6 +3,8 @@ import { FaMapMarkerAlt, FaRoad, FaCarCrash, FaThumbsUp } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Navbar from "../components/Navbar";
+import Hero from "./Hero"; // Import the new Hero component
+import About from "./about/About";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -77,6 +79,9 @@ const Home = () => {
           </div>
         </div>
 
+        {/* New Pothole Data Section */}
+        <Hero />
+
         {/* Call to Action */}
         <div className="py-16 px-4 bg-blue-50">
           <div className="max-w-4xl mx-auto text-center">
@@ -91,6 +96,7 @@ const Home = () => {
             </button>
           </div>
         </div>
+        {/* <About /> */}
       </div>
     </>
   );
