@@ -144,6 +144,22 @@ If you have any questions or issues with the frontend, please contact us at:
 
 ---
 
+## 📸 Screenshots
+
+| Home Page                          | About Page                           |
+| ---------------------------------- | ------------------------------------ |
+| ![Home Page](/public/pic/home.png) | ![About Page](/public/pic/about.png) |
+
+| About Page 2                                 | Feedback Page                              |
+| -------------------------------------------- | ------------------------------------------ |
+| ![Working mechanism](/public/pic/about2.png) | ![Feedback Page](/public/pic/feedback.png) |
+
+| Contact Page                             |
+| ---------------------------------------- |
+| ![Contact Page](/public/pic/contact.png) |
+
+---
+
 Made with ❤️ for safer roads
 
 ## Feedback
