@@ -107,6 +107,22 @@ The application is fully responsive with breakpoints for:
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
 
+---
+
+## 📸 Screenshots
+
+| Home Page                          | About Page                           |
+| ---------------------------------- | ------------------------------------ |
+| ![Home Page](/public/pic/home.png) | ![About Page](/public/pic/about.png) |
+
+| Working mechanism                            | Feedback Page                              |
+| -------------------------------------------- | ------------------------------------------ |
+| ![Working mechanism](/public/pic/about2.png) | ![Feedback Page](/public/pic/feedback.png) |
+
+| Contact Page                             |
+| ---------------------------------------- |
+| ![Contact Page](/public/pic/contact.png) |
+
 ## 🤝 Contributing
 
 We welcome contributions to the frontend! Please follow these steps:
@@ -141,22 +157,6 @@ If you have any questions or issues with the frontend, please contact us at:
 
 - Email: support@potholereporter.com
 - Create an issue in the GitHub repository
-
----
-
-## 📸 Screenshots
-
-| Home Page                          | About Page                           |
-| ---------------------------------- | ------------------------------------ |
-| ![Home Page](/public/pic/home.png) | ![About Page](/public/pic/about.png) |
-
-| About Page 2                                 | Feedback Page                              |
-| -------------------------------------------- | ------------------------------------------ |
-| ![Working mechanism](/public/pic/about2.png) | ![Feedback Page](/public/pic/feedback.png) |
-
-| Contact Page                             |
-| ---------------------------------------- |
-| ![Contact Page](/public/pic/contact.png) |
 
 ---
 

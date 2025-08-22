@@ -117,7 +117,7 @@ const Hero = () => {
                   <div className="flex items-center text-sm text-gray-500 mb-2">
                     <FaRulerCombined className="mr-2" />
                     <span>
-                      Size: {pothole.size.width}cm × {pothole.size.depth}cm
+                      Size: {pothole?.size?.width}cm × {pothole.size.depth}cm
                     </span>
                   </div>
 
