@@ -13,6 +13,7 @@ import Footer from "./components/Footer";
 import ToastContainer from "react-hot-toast";
 import About from "./pages/about/About";
 import Feedback from "./pages/feedback/Feedback";
+import Contact from "./pages/contact/Contact";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="/potholes/:id" element={<PotholeDetails />} />
               <Route path="/about" element={<About />} />
               <Route path="/feedback" element={<Feedback />} />
+              <Route path="/contact" element={<Contact />} />
 
               {/* Private Routes */}
               <Route

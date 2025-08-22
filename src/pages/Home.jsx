@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import Navbar from "../components/Navbar";
 import Hero from "./Hero"; // Import the new Hero component
 import About from "./about/About";
+import Contact from "./contact/Contact";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -83,7 +84,7 @@ const Home = () => {
         <Hero />
 
         {/* Call to Action */}
-        <div className="py-16 px-4 bg-blue-50">
+        {/* <div className="py-16 px-4 bg-blue-50">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6 text-gray-800">
               Ready to Make a Difference?
@@ -95,8 +96,9 @@ const Home = () => {
               {isAuthenticated ? "Report Now" : "Join Our Community"}
             </button>
           </div>
-        </div>
+        </div> */}
         {/* <About /> */}
+        <Contact />
       </div>
     </>
   );
