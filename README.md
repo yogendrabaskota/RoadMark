@@ -119,9 +119,13 @@ The application is fully responsive with breakpoints for:
 | -------------------------------------------- | ------------------------------------------ |
 | ![Working mechanism](/public/pic/about2.png) | ![Feedback Page](/public/pic/feedback.png) |
 
-| Contact Page                             |
-| ---------------------------------------- |
-| ![Contact Page](/public/pic/contact.png) |
+| Contact Page                             | Pothole Details                              |
+| ---------------------------------------- | -------------------------------------------- |
+| ![Contact Page](/public/pic/contact.png) | ![Pothole Details](/public/pic/details1.png) |
+
+| Recent Pothole Page                             |
+| ----------------------------------------------- |
+| ![Recent Pothole Page](/public/pic/pothole.png) |
 
 ## 🤝 Contributing
 
