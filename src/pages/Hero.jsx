@@ -7,6 +7,7 @@ import {
   FaClock,
   FaThumbsUp,
   FaThumbsDown,
+  FaEye,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -44,26 +45,39 @@ const Hero = () => {
   const getSeverityColor = (severity) => {
     switch (severity) {
       case "high":
-        return "bg-red-100 text-red-800 border-l-4 border-red-500";
+        return "bg-red-500 text-white";
       case "medium":
-        return "bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500";
+        return "bg-amber-500 text-white";
       case "low":
-        return "bg-green-100 text-green-800 border-l-4 border-green-500";
+        return "bg-green-500 text-white";
       default:
-        return "bg-gray-100 text-gray-800 border-l-4 border-gray-500";
+        return "bg-gray-500 text-white";
     }
   };
 
-  const getSeverityIcon = (severity) => {
+  const getSeverityGradient = (severity) => {
     switch (severity) {
       case "high":
-        return <FaExclamationTriangle className="text-red-500" />;
+        return "from-red-500 to-red-600";
       case "medium":
-        return <FaExclamationTriangle className="text-yellow-500" />;
+        return "from-amber-500 to-amber-600";
       case "low":
-        return <FaExclamationTriangle className="text-green-500" />;
+        return "from-green-500 to-green-600";
       default:
-        return <FaExclamationTriangle className="text-gray-500" />;
+        return "from-gray-500 to-gray-600";
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "reported":
+        return "bg-blue-100 text-blue-800";
+      case "in-progress":
+        return "bg-amber-100 text-amber-800";
+      case "fixed":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -133,35 +147,38 @@ const Hero = () => {
               <div
                 key={pothole._id}
                 onClick={() => handlePotholeClick(pothole._id)}
-                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100"
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-blue-100 cursor-pointer group"
               >
-                {/* Pothole Image */}
+                {/* Pothole Image with Gradient Overlay */}
                 {pothole.images?.url && (
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 overflow-hidden relative">
                     <img
-                      src={pothole?.images?.url}
+                      src={pothole.images.url}
                       alt={`Pothole at ${pothole.address}`}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
+                    <div
+                      className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${getSeverityColor(
+                        pothole.severity
+                      )}`}
+                    >
+                      <span className="capitalize">{pothole.severity}</span>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                      <span className="text-white font-medium flex items-center">
+                        <FaEye className="mr-2" /> View Details
+                      </span>
+                    </div>
                   </div>
                 )}
 
                 <div className="p-6">
-                  {/* Header with severity badge */}
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-xl font-bold text-blue-900 truncate pr-2">
+                  {/* Address with icon */}
+                  <div className="flex items-start mb-4">
+                    <FaMapMarkerAlt className="text-blue-500 mt-1 mr-2 flex-shrink-0" />
+                    <h3 className="text-xl font-bold text-blue-900 line-clamp-2 leading-tight">
                       {pothole.address}
                     </h3>
-                    <span
-                      className={`flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getSeverityColor(
-                        pothole.severity
-                      )}`}
-                    >
-                      {getSeverityIcon(pothole.severity)}
-                      <span className="ml-1 capitalize">
-                        {pothole.severity}
-                      </span>
-                    </span>
                   </div>
 
                   {/* Description */}
@@ -169,59 +186,61 @@ const Hero = () => {
                     {pothole.description}
                   </p>
 
-                  {/* Size and details */}
-                  <div className="space-y-3 mb-5">
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
                     {pothole.size && (
-                      <div className="flex items-center text-sm text-blue-700">
-                        <FaRulerCombined className="mr-2 text-blue-500" />
-                        <span>
-                          {pothole.size.width}cm × {pothole.size.depth}cm
-                        </span>
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <div className="flex items-center text-blue-700 mb-1">
+                          <FaRulerCombined className="mr-2 text-blue-500" />
+                          <span className="text-sm font-medium">Size</span>
+                        </div>
+                        <p className="text-blue-900 font-semibold">
+                          {pothole.size.width}×{pothole.size.depth}cm
+                        </p>
                       </div>
                     )}
 
-                    <div className="flex items-center text-sm text-blue-700">
-                      <FaClock className="mr-2 text-blue-500" />
-                      <span>
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <div className="flex items-center text-blue-700 mb-1">
+                        <FaClock className="mr-2 text-blue-500" />
+                        <span className="text-sm font-medium">Reported</span>
+                      </div>
+                      <p className="text-blue-900 font-semibold text-sm">
                         {new Date(pothole.createdAt).toLocaleDateString(
                           "en-US",
                           {
-                            year: "numeric",
                             month: "short",
                             day: "numeric",
+                            year: "numeric",
                           }
                         )}
-                      </span>
+                      </p>
                     </div>
                   </div>
 
-                  {/* Votes and status */}
+                  {/* Footer with votes and status */}
                   <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                     <div className="flex space-x-4">
-                      <div className="flex items-center text-green-600">
+                      <div className="flex items-center text-green-600 bg-green-50 px-3 py-1 rounded-full">
                         <FaThumbsUp className="mr-1" />
-                        <span className="font-medium">
-                          {pothole?.votes?.upvotes}
+                        <span className="font-medium text-sm">
+                          {pothole?.votes?.upvotes || 0}
                         </span>
                       </div>
-                      <div className="flex items-center text-red-600">
+                      <div className="flex items-center text-red-600 bg-red-50 px-3 py-1 rounded-full">
                         <FaThumbsDown className="mr-1" />
-                        <span className="font-medium">
-                          {pothole?.votes?.downvotes}
+                        <span className="font-medium text-sm">
+                          {pothole?.votes?.downvotes || 0}
                         </span>
                       </div>
                     </div>
 
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        pothole.status === "reported"
-                          ? "bg-blue-100 text-blue-800"
-                          : pothole?.status === "in-progress"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        pothole.status
+                      )}`}
                     >
-                      {pothole?.status}
+                      {pothole.status}
                     </span>
                   </div>
                 </div>

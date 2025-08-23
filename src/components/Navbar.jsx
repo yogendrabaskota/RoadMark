@@ -2,6 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+  // Check if token exists in localStorage
+  const hasToken = localStorage.getItem("token");
+
   return (
     <header className="lg:px-16 px-4 bg-blue-900 flex flex-wrap items-center py-4 shadow-lg sticky top-0 z-50">
       <div className="flex-1 flex justify-between items-center">
@@ -58,6 +61,14 @@ const Navbar = () => {
             </li>
             <li>
               <Link
+                to="/potholes"
+                className="md:p-4 py-3 px-0 block hover:text-amber-400 transition-colors"
+              >
+                Potholes
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/feedback"
                 className="md:p-4 py-3 px-0 block hover:text-amber-400 transition-colors"
               >
@@ -72,14 +83,16 @@ const Navbar = () => {
                 Contact
               </Link>
             </li>
-            <li>
-              <Link
-                to="/login"
-                className="ml-4 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded transition-colors"
-              >
-                Login
-              </Link>
-            </li>
+            {!hasToken && (
+              <li>
+                <Link
+                  to="/login"
+                  className="ml-4 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded transition-colors"
+                >
+                  Login
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>
