@@ -16,10 +16,12 @@ import Contact from "./pages/contact/Contact";
 import PotholeDetails from "./pages/potholeDetails/PotholeDetails";
 import Report from "./pages/report/Report";
 import Potholes from "./pages/potholePage/Potholes";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 function App() {
   return (
-    <AuthProvider>
+    <Provider store={store}>
       <BrowserRouter>
         <Navbar />
         <div className="min-h-screen flex flex-col">
@@ -67,7 +69,7 @@ function App() {
           }}
         />
       </BrowserRouter>
-    </AuthProvider>
+    </Provider>
   );
 }
 

@@ -1,18 +1,17 @@
 import React from "react";
 import { FaMapMarkerAlt, FaRoad, FaCarCrash, FaThumbsUp } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import Navbar from "../components/Navbar";
+
 import Hero from "./Hero"; // Import the new Hero component
-import About from "./about/About";
+
 import Contact from "./contact/Contact";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const token = localStorage.getItem("token");
 
   const handleReportClick = () => {
-    if (isAuthenticated) {
+    if (token) {
       navigate("/report");
     } else {
       navigate("/login");
@@ -54,7 +53,7 @@ const Home = () => {
               onClick={handleReportClick}
               className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg"
             >
-              {isAuthenticated ? "Report a Pothole" : "Get Started"}
+              {token ? "Report a Pothole" : "Get Started"}
             </button>
           </div>
         </div>

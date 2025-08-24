@@ -1,17 +1,20 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import { loginUser } from "../services/auth";
-import { toast } from "react-hot-toast";
+import { loginUser } from "../store/authSlice";
+import { useEffect } from "react";
+import { STATUSES } from "../globals/misc/statuses";
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { status } = useSelector((state) => state.auth);
+  const loading = isSubmitting && status === STATUSES.LOADING;
 
   const handleChange = (e) => {
     setCredentials({
@@ -22,44 +25,19 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    if (!credentials.email || !credentials.password) {
-      toast.error("Please provide both email and password");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await loginUser(credentials);
-      console.log(response.data.data);
-      console.log(response.status);
-
-      if (response.status === 200) {
-        login(response.data.data); // Pass the token to auth context
-        toast.success("Logged in successfully");
-        navigate("/dashboard");
-      } else {
-        throw new Error(response.data.message || "Login failed");
-      }
-    } catch (error) {
-      // Handle specific error messages from backend
-      if (error.response) {
-        const errorMsg = error.response.data.message;
-        if (errorMsg.includes("not registered")) {
-          toast.error("Email not registered");
-        } else if (errorMsg.includes("invalid password")) {
-          toast.error("Invalid password");
-        } else {
-          toast.error(errorMsg || "Login failed");
-        }
-      } else {
-        toast.error(error.message || "Login failed");
-      }
-    } finally {
-      setLoading(false);
-    }
+    setIsSubmitting(true);
+    dispatch(loginUser(credentials));
   };
+
+  useEffect(() => {
+    if (status == STATUSES.SUCCESS) {
+      setIsSubmitting(false);
+      navigate("/");
+    } else if (status == STATUSES.ERROR) {
+      setIsSubmitting(false);
+      alert("Something went wrong");
+    }
+  }, [navigate, status]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

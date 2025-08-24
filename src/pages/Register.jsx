@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../services/auth";
-import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { STATUSES } from "../globals/misc/statuses";
+import { registerUser } from "../store/authSlice";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const Register = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { status } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,14 +25,16 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await registerUser(formData);
-      toast.success("Registration successful! Please login.");
-      navigate("/login");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
-    }
+
+    dispatch(registerUser(formData));
   };
+  useEffect(() => {
+    if (status == STATUSES.SUCCESS) {
+      navigate("/login");
+    } else if (status == STATUSES.ERROR) {
+      alert("Something went wrong");
+    }
+  }, [navigate, status]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
