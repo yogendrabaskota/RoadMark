@@ -50,10 +50,11 @@ export function loginUser(data) {
         dispatch(setUser(response.data));
         dispatch(setToken(response.data.token));
         console.log(response.data.data);
-        dispatch(setStatus(STATUSES.SUCCESS));
+
         if (response.data.data) {
           localStorage.setItem("token", response.data.data);
         }
+        dispatch(setStatus(STATUSES.SUCCESS));
       }
     } catch (error) {
       dispatch(setStatus(STATUSES.ERROR));

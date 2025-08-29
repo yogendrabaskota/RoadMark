@@ -1,6 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
 import "./App.css";
 import Home from "./pages/Home";
 
@@ -15,7 +13,7 @@ import Feedback from "./pages/feedback/Feedback";
 import Contact from "./pages/contact/Contact";
 import PotholeDetails from "./pages/potholeDetails/PotholeDetails";
 import Report from "./pages/report/Report";
-import Potholes from "./pages/potholePage/Potholes";
+// import Potholes from "./pages/potholePage/Potholes";
 import { Provider } from "react-redux";
 import store from "./store/store";
 
@@ -35,25 +33,11 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/potholes" element={<Potholes />} />
+              {/* <Route path="/potholes" element={<Potholes />} /> */}
 
               {/* Private Routes */}
-              <Route
-                path="/report"
-                element={
-                  <PrivateRoute>
-                    <Report />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
+              <Route path="/report" element={<Report />} />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </main>
           <Footer />

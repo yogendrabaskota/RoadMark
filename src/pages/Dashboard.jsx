@@ -1,20 +1,20 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import useAuth from "../hooks/useAuth";
-import { fetchPotholes } from "../services/api";
-import PotholeList from "../components/PotholeList";
+// import { fetchPotholes } from "../services/api";
+
 import { toast } from "react-hot-toast";
+import Potholes from "./potholePage/Potholes";
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const [potholes, setPotholes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const user = localStorage.getItem("user");
 
   useEffect(() => {
     const loadUserPotholes = async () => {
       try {
-        const { data } = await fetchPotholes({ userId: user._id });
-        setPotholes(data);
+        // const { data } = await fetchPotholes({ userId: user._id });
+        // setPotholes(data);
       } catch (error) {
         toast.error("Failed to load your pothole reports");
       } finally {
@@ -38,7 +38,7 @@ const Dashboard = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : (
-          <PotholeList potholes={potholes} showActions={true} />
+          <Potholes potholes={potholes} showActions={true} />
         )}
       </div>
     </div>
