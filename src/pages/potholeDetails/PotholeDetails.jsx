@@ -44,7 +44,7 @@ const PotholeDetails = () => {
     const fetchPotholeDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/potholes/${id}`
+          `https://fixmyroadb.onrender.com/api/potholes/${id}`
         );
         const data = await response.json();
 
@@ -63,7 +63,7 @@ const PotholeDetails = () => {
     const fetchComments = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/potholes/${id}/comments`
+          `https://fixmyroadb.onrender.com/api/potholes/${id}/comments`
         );
         const data = await response.json();
 
@@ -93,7 +93,7 @@ const PotholeDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/potholes/${id}/vote`,
+        `https://fixmyroadb.onrender.com/api/potholes/${id}/vote`,
         {
           method: "PUT",
           headers: {
@@ -145,7 +145,7 @@ const PotholeDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:5000/api/potholes/${id}/comments`,
+        `https://fixmyroadb.onrender.com/api/potholes/${id}/comments`,
         {
           method: "POST",
           headers: {
@@ -162,7 +162,7 @@ const PotholeDetails = () => {
         setCommentText("");
         // Refresh comments
         const commentsResponse = await fetch(
-          `http://localhost:5000/api/potholes/${id}/comments`
+          `https://fixmyroadb.onrender.com/api/potholes/${id}/comments`
         );
         const commentsData = await commentsResponse.json();
 

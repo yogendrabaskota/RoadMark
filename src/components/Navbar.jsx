@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const hasToken = localStorage.getItem("token");
+  useEffect(() => {}, [hasToken]);
 
   return (
     <header className="lg:px-16 px-4 bg-blue-900 flex flex-wrap items-center py-4 shadow-lg sticky top-0 z-50">

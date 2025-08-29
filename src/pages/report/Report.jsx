@@ -119,13 +119,16 @@ const Report = () => {
 
       submitData.append("image", formData.image);
 
-      const response = await fetch("http://localhost:5000/api/potholes/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: submitData,
-      });
+      const response = await fetch(
+        "https://fixmyroadb.onrender.com/api/potholes/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: submitData,
+        }
+      );
 
       const data = await response.json();
 

@@ -20,7 +20,9 @@ const Hero = () => {
   useEffect(() => {
     const fetchPotholes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/potholes");
+        const response = await fetch(
+          "https://fixmyroadb.onrender.com/api/potholes"
+        );
         const data = await response.json();
 
         if (data.success) {
