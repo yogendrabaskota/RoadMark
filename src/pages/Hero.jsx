@@ -9,36 +9,35 @@ import {
   FaThumbsDown,
   FaEye,
 } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { STATUSES } from "../globals/misc/statuses";
+import { fetchPotholes } from "../store/potholeSlice";
 
 const Hero = () => {
-  const [potholes, setPotholes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [potholes, setPotholes] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { potholes, status } = useSelector((state) => state.pothole);
 
   useEffect(() => {
-    const fetchPotholes = async () => {
-      try {
-        const response = await fetch(
-          "https://fixmyroadb.onrender.com/api/potholes"
-        );
-        const data = await response.json();
+    if (status === STATUSES.LOADING) {
+      setLoading(true);
+    } else if (status === STATUSES.ERROR) {
+      setLoading(false);
+      setError("Failed to fetch pothole data");
+    } else if (status === STATUSES.SUCCESS) {
+      setLoading(false);
+    }
+  }, [status]);
 
-        if (data.success) {
-          setPotholes(data.data);
-        } else {
-          setError("Failed to fetch pothole data");
-        }
-      } catch (err) {
-        setError("Error connecting to the server");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPotholes();
-  }, []);
+  useEffect(() => {
+    if (potholes.length === 0) {
+      dispatch(fetchPotholes());
+    }
+  }, [dispatch, potholes.length]);
 
   const handlePotholeClick = (id) => {
     navigate(`/pothole/${id}`);

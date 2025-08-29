@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
   FaMapMarkerAlt,
   FaRulerCombined,
@@ -18,116 +19,74 @@ import {
   FaPaperPlane,
   FaUserCircle,
 } from "react-icons/fa";
+import {
+  fetchAllComment,
+  fetchSinglePothole,
+  setStatus,
+  voteOnPothole,
+} from "../../store/potholeSlice";
+import { STATUSES } from "../../globals/misc/statuses";
 
 const PotholeDetails = () => {
   const { id } = useParams();
+  // console.log("idd", id);
   const navigate = useNavigate();
-  const [pothole, setPothole] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [voting, setVoting] = useState(false);
+  const dispatch = useDispatch();
+
+  // Get data from Redux store
+  const { singlePothole, allComments, status, votingStatus } = useSelector(
+    (state) => state.pothole
+  );
+
   const [userVote, setUserVote] = useState(null);
   const [expandedImage, setExpandedImage] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
-  const [commentsLoading, setCommentsLoading] = useState(true);
 
-  // Check if user is authenticated (simple version)
+  // Check if user is authenticated
   const isAuthenticated = () => {
     return localStorage.getItem("token") !== null;
   };
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    const fetchPotholeDetails = async () => {
-      try {
-        const response = await fetch(
-          `https://fixmyroadb.onrender.com/api/potholes/${id}`
-        );
-        const data = await response.json();
+    if (hasFetched.current) return;
 
-        if (data.success) {
-          setPothole(data.data);
-        } else {
-          setError("Failed to fetch pothole details");
-        }
-      } catch (err) {
-        setError("Error connecting to the server");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const existingPothole = singlePothole && singlePothole._id === id;
 
-    const fetchComments = async () => {
-      try {
-        const response = await fetch(
-          `https://fixmyroadb.onrender.com/api/potholes/${id}/comments`
-        );
-        const data = await response.json();
+    if (!existingPothole) {
+      dispatch(fetchSinglePothole(id));
+    } else {
+      dispatch(setStatus(STATUSES.SUCCESS));
+    }
 
-        if (data.success) {
-          setComments(data.data);
-        } else {
-          console.error("Failed to fetch comments");
-        }
-      } catch (err) {
-        console.error("Error fetching comments:", err);
-      } finally {
-        setCommentsLoading(false);
-      }
-    };
+    if (allComments.length === 0) {
+      dispatch(fetchAllComment(id));
+    }
 
-    fetchPotholeDetails();
-    fetchComments();
-  }, [id]);
-
+    hasFetched.current = true;
+  }, [dispatch, id, singlePothole, allComments]);
   const handleVote = async (voteType) => {
     if (!isAuthenticated()) {
       navigate("/login");
       return;
     }
 
-    setVoting(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `https://fixmyroadb.onrender.com/api/potholes/${id}/vote`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ voteType }),
-        }
-      );
+      await dispatch(voteOnPothole({ potholeId: id, voteType }));
 
-      const data = await response.json();
-
-      if (data.success) {
-        setPothole((prev) => ({
-          ...prev,
-          votes: {
-            ...prev.votes,
-            upvotes: data.data.upvotes,
-            downvotes: data.data.downvotes,
-          },
-        }));
-
-        if (userVote === voteType) {
-          setUserVote(null);
-        } else {
-          setUserVote(voteType);
-        }
+      // Update userVote state based on the vote type
+      if (userVote === voteType) {
+        setUserVote(null); // User is undoing their vote
       } else {
-        setError(data.message || "Failed to process vote");
+        setUserVote(voteType); // User is casting a new vote
       }
-    } catch (err) {
-      setError("Error processing vote");
-    } finally {
-      setVoting(false);
+    } catch (error) {
+      console.error("Voting failed:", error.message);
+      // You can show an error message to the user here
     }
   };
 
@@ -161,19 +120,12 @@ const PotholeDetails = () => {
       if (data.success) {
         setCommentText("");
         // Refresh comments
-        const commentsResponse = await fetch(
-          `https://fixmyroadb.onrender.com/api/potholes/${id}/comments`
-        );
-        const commentsData = await commentsResponse.json();
-
-        if (commentsData.success) {
-          setComments(commentsData.data);
-        }
+        dispatch(fetchAllComment(id));
       } else {
-        setError(data.message || "Failed to post comment");
+        console.error(data.message || "Failed to post comment");
       }
     } catch (err) {
-      setError("Error posting comment");
+      console.error("Error posting comment");
     } finally {
       setCommentLoading(false);
     }
@@ -193,6 +145,8 @@ const PotholeDetails = () => {
   };
 
   const getStatusIcon = (status) => {
+    if (!status) return <FaStatusClock className="text-gray-500" />;
+
     switch (status) {
       case "reported":
         return <FaStatusClock className="text-blue-500" />;
@@ -206,6 +160,8 @@ const PotholeDetails = () => {
   };
 
   const getStatusColor = (status) => {
+    if (!status) return "bg-gray-100 text-gray-800 border-gray-500";
+
     switch (status) {
       case "reported":
         return "bg-blue-100 text-blue-800 border-blue-500";
@@ -228,7 +184,7 @@ const PotholeDetails = () => {
     setImageLoaded(false);
   };
 
-  if (loading) {
+  if (status === STATUSES.LOADING) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -241,7 +197,7 @@ const PotholeDetails = () => {
     );
   }
 
-  if (error || !pothole) {
+  if (status === STATUSES.ERROR || !singlePothole) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -255,7 +211,7 @@ const PotholeDetails = () => {
           <div className="text-center py-16 bg-red-50 rounded-xl border border-red-200">
             <FaExclamationTriangle className="text-4xl text-red-500 mx-auto mb-4" />
             <p className="text-red-700 text-lg font-medium">
-              {error || "Pothole not found"}
+              Failed to load pothole details
             </p>
           </div>
         </div>
@@ -266,15 +222,15 @@ const PotholeDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-gray-50 py-8 px-4">
       {/* Image Modal */}
-      {expandedImage && pothole?.images?.url && (
+      {expandedImage && singlePothole?.images?.url && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
           onClick={() => setExpandedImage(false)}
         >
           <div className="relative max-w-4xl max-h-full">
             <img
-              src={pothole.images.url}
-              alt={`Pothole at ${pothole.address}`}
+              src={singlePothole.images.url}
+              alt={`Pothole at ${singlePothole.address}`}
               className="max-w-full max-h-full object-contain"
               onLoad={handleImageLoad}
               onError={handleImageError}
@@ -302,7 +258,7 @@ const PotholeDetails = () => {
         {/* Main Content */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-blue-100">
           {/* Pothole Image with Expand Option */}
-          {pothole?.images?.url && (
+          {singlePothole?.images?.url && (
             <div className="relative h-64 md:h-96 overflow-hidden group bg-gray-100">
               {!imageLoaded && !imageError && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -317,8 +273,8 @@ const PotholeDetails = () => {
                 </div>
               ) : (
                 <img
-                  src={pothole.images.url}
-                  alt={`Pothole at ${pothole.address}`}
+                  src={singlePothole.images.url}
+                  alt={`Pothole at ${singlePothole.address}`}
                   className={`w-full h-full object-cover transition-opacity duration-300 ${
                     imageLoaded ? "opacity-100" : "opacity-0"
                   }`}
@@ -339,7 +295,7 @@ const PotholeDetails = () => {
             </div>
           )}
 
-          {!pothole?.images?.url && (
+          {!singlePothole?.images?.url && (
             <div className="h-48 bg-gray-100 flex items-center justify-center text-gray-400">
               <FaImage className="text-4xl mr-3" />
               <span>No image available</span>
@@ -351,14 +307,14 @@ const PotholeDetails = () => {
             <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
               <div className="flex-1">
                 <h1 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
-                  {pothole.address}
+                  {singlePothole.address || "Unknown Address"}
                 </h1>
                 <p className="text-gray-700 text-lg mb-4">
-                  {pothole.description}
+                  {singlePothole.description || "No description available"}
                 </p>
 
                 {/* Image Info */}
-                {pothole.images?.url && (
+                {singlePothole.images?.url && (
                   <div className="flex items-center text-sm text-gray-500 mb-2">
                     <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
                       📷 Photo available
@@ -370,20 +326,24 @@ const PotholeDetails = () => {
               <div className="flex flex-col gap-2">
                 <span
                   className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border-l-4 ${getSeverityColor(
-                    pothole.severity
+                    singlePothole.severity
                   )}`}
                 >
                   <FaExclamationTriangle className="mr-2" />
-                  {pothole.severity.toUpperCase()}
+                  {singlePothole.severity
+                    ? singlePothole.severity.toUpperCase()
+                    : "UNKNOWN"}
                 </span>
                 <span
                   className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold border-l-4 ${getStatusColor(
-                    pothole.status
+                    singlePothole.status
                   )}`}
                 >
-                  {getStatusIcon(pothole.status)}
+                  {getStatusIcon(singlePothole.status)}
                   <span className="ml-2 capitalize">
-                    {pothole.status.replace("-", " ")}
+                    {singlePothole.status
+                      ? singlePothole.status.replace("-", " ")
+                      : "unknown"}
                   </span>
                 </span>
               </div>
@@ -398,15 +358,17 @@ const PotholeDetails = () => {
                 <div className="space-y-3">
                   <div className="flex items-center text-blue-800">
                     <FaMapMarkerAlt className="mr-3 text-blue-600 text-lg" />
-                    <span className="font-medium">{pothole.address}</span>
+                    <span className="font-medium">
+                      {singlePothole.address || "Address not available"}
+                    </span>
                   </div>
-                  {pothole.location?.coordinates && (
+                  {singlePothole.location?.coordinates && (
                     <div className="text-sm text-blue-700 bg-blue-100 p-2 rounded">
                       <strong>Coordinates:</strong>
                       <br />
-                      Latitude: {pothole.location.coordinates[1]}
+                      Latitude: {singlePothole.location.coordinates[1]}
                       <br />
-                      Longitude: {pothole.location.coordinates[0]}
+                      Longitude: {singlePothole.location.coordinates[0]}
                     </div>
                   )}
                 </div>
@@ -417,12 +379,12 @@ const PotholeDetails = () => {
                   Pothole Specifications
                 </h3>
                 <div className="space-y-3">
-                  {pothole.size && (
+                  {singlePothole.size && (
                     <div className="flex items-center text-amber-800">
                       <FaRulerCombined className="mr-3 text-amber-600 text-lg" />
                       <span>
-                        <strong>Size:</strong> {pothole.size.width}cm ×{" "}
-                        {pothole.size.depth}cm
+                        <strong>Size:</strong> {singlePothole.size.width}cm ×{" "}
+                        {singlePothole.size.depth}cm
                       </span>
                     </div>
                   )}
@@ -430,20 +392,23 @@ const PotholeDetails = () => {
                     <FaClock className="mr-3 text-amber-600 text-lg" />
                     <span>
                       <strong>Reported:</strong>{" "}
-                      {new Date(pothole.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {new Date(singlePothole.createdAt).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
                     </span>
                   </div>
                   <div className="flex items-center text-amber-800">
                     <FaUser className="mr-3 text-amber-600 text-lg" />
                     <span>
                       <strong>Reported by:</strong> User #
-                      {pothole.createdBy?._id?.slice(-6) || "Anonymous"}
+                      {singlePothole.createdBy?._id?.slice(-6) || "Anonymous"}
                     </span>
                   </div>
                 </div>
@@ -458,32 +423,40 @@ const PotholeDetails = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => handleVote("upvote")}
-                  disabled={voting}
+                  disabled={votingStatus === STATUSES.LOADING}
                   className={`flex items-center px-6 py-3 rounded-lg transition-all ${
                     userVote === "upvote"
                       ? "bg-green-100 text-green-800 border-2 border-green-500 shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:shadow-md"
-                  } ${voting ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${
+                    votingStatus === STATUSES.LOADING
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
                 >
                   <FaThumbsUp className="mr-2 text-lg" />
                   <span className="font-semibold text-lg">
-                    {pothole.votes.upvotes}
+                    {singlePothole.votes?.upvotes || 0}
                   </span>
                   <span className="ml-1 text-sm">Upvotes</span>
                 </button>
 
                 <button
                   onClick={() => handleVote("downvote")}
-                  disabled={voting}
+                  disabled={votingStatus === STATUSES.LOADING}
                   className={`flex items-center px-6 py-3 rounded-lg transition-all ${
                     userVote === "downvote"
                       ? "bg-red-100 text-red-800 border-2 border-red-500 shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-700 hover:shadow-md"
-                  } ${voting ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${
+                    votingStatus === STATUSES.LOADING
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
                 >
                   <FaThumbsDown className="mr-2 text-lg" />
                   <span className="font-semibold text-lg">
-                    {pothole.votes.downvotes}
+                    {singlePothole.votes?.downvotes || 0}
                   </span>
                   <span className="ml-1 text-sm">Downvotes</span>
                 </button>
@@ -510,21 +483,23 @@ const PotholeDetails = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
                   <p>
-                    <strong>Report ID:</strong> {pothole._id}
+                    <strong>Report ID:</strong> {singlePothole._id}
                   </p>
                   <p>
                     <strong>Created:</strong>{" "}
-                    {new Date(pothole.createdAt).toLocaleDateString()}
+                    {new Date(singlePothole.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
                   <p>
                     <strong>Last updated:</strong>{" "}
-                    {new Date(pothole.updatedAt).toLocaleDateString()}
+                    {new Date(singlePothole.updatedAt).toLocaleDateString()}
                   </p>
                   <p>
                     <strong>Status:</strong>{" "}
-                    <span className="capitalize">{pothole.status}</span>
+                    <span className="capitalize">
+                      {singlePothole.status || "unknown"}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -539,7 +514,7 @@ const PotholeDetails = () => {
               <FaComment className="text-blue-600 text-xl mr-3" />
               <h2 className="text-2xl font-bold text-blue-900">Comments</h2>
               <span className="ml-3 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                {comments.length}
+                {allComments.length}
               </span>
             </div>
 
@@ -582,12 +557,12 @@ const PotholeDetails = () => {
             </form>
 
             {/* Comments List */}
-            {commentsLoading ? (
+            {status === STATUSES.LOADING ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="text-gray-600 mt-2">Loading comments...</p>
               </div>
-            ) : comments.length === 0 ? (
+            ) : allComments.length === 0 ? (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
                 <FaComment className="text-3xl text-gray-400 mx-auto mb-3" />
                 <p className="text-gray-600">
@@ -596,7 +571,7 @@ const PotholeDetails = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {comments.map((comment) => (
+                {allComments.map((comment) => (
                   <div key={comment._id} className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-start gap-3">
                       <div className="bg-blue-100 p-2 rounded-full">
@@ -605,10 +580,8 @@ const PotholeDetails = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-blue-900">
-                            {/* User #{comment.user?._id?.slice(-6) || "Anonymous"} */}
                             Commented by{" "}
                             <strong>
-                              {" "}
                               {comment.user?.userName || "Anonymous"}
                             </strong>
                           </span>

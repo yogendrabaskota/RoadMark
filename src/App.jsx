@@ -16,6 +16,7 @@ import Report from "./pages/report/Report";
 // import Potholes from "./pages/potholePage/Potholes";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import AllPotholes from "./pages/allPotholes/AllPotholes";
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/contact" element={<Contact />} />
-              {/* <Route path="/potholes" element={<Potholes />} /> */}
+              <Route path="/potholes" element={<AllPotholes />} />
 
               {/* Private Routes */}
               <Route path="/report" element={<Report />} />
